@@ -12,7 +12,9 @@ const todos = [
     },
     {
         _id: new ObjectID(),
-        text: 'Test todo 2.'
+        text: 'Test todo 2.',
+        completed: true,
+        completedAt: 333
     }];
 
 // Setup db before test case is run.
@@ -136,6 +138,46 @@ describe('DELETE /todos/:id', () => {
         request(app)
             .get('/todos/asdf')
             .expect(404)
+            .end(done);
+    });
+});
+
+describe('PATCH /todos/:id', () => {
+    it('should update the toto', (done) => {
+        let hexId = todos[0]._id.toHexString();
+        let text = "Lorem Ipsum.";
+
+        request(app)
+            .patch(`/todos/${hexId}`)
+            .send({
+                completed: true,
+                text
+            })
+            .expeect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toBeA('number');
+            })
+            .end(done);
+    });
+
+    it('should clear completedAt when todo is not completed', (done) => {
+        let hexId = todos[1]._id.toHexString();
+        let text = "Lorem Ipsum.";
+
+        request(app)
+            .patch(`/todos/${hexId}`)
+            .send({
+                completed: false,
+                text
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(resbody.todo.text).toBe(text);
+                expect(res.body.todo.complted).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist();
+            })
             .end(done);
     });
 });
