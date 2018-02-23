@@ -28,6 +28,20 @@ app.post('/todos', (req, res) => {
 
 });
 
+// POST: /users
+app.post('/users', (req, res) => {
+    let body = _.pick(req.body, ['email', 'password']);
+    let user = new User(body);
+
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((err) => {
+        res.status(400).send(err);
+    })
+});
+
 // GET /todos/.
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
